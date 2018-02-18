@@ -42,6 +42,21 @@ class ViewController: UIViewController {
             }
         }
         
+        let urlString = "https://www.weather-forecast.com/locations/\(city)/forecasts/latest"
+        if let url = URL(string: urlString) {
+            let request = NSMutableURLRequest(url: url)
+            let session = URLSession.shared
+            let task = session.dataTask(with: request as URLRequest, completionHandler: { (data, response, error) in
+                if error != nil {
+                    print(error)
+                    self.locationNameLabel.text = "Error: Weather could not be found. Please try again."
+                } else {
+                    print(data)
+                    print(response)
+                }
+            })
+            task.resume()
+        }
         
     }
 
