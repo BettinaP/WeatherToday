@@ -45,13 +45,17 @@ class ViewController: UIViewController {
         let urlString = "https://www.weather-forecast.com/locations/\(city)/forecasts/latest"
         if let url = URL(string: urlString) {
             let request = NSMutableURLRequest(url: url)
-            let session = URLSession.shared
-            let task = session.dataTask(with: request as URLRequest, completionHandler: { (data, response, error) in
+            let task = URLSession.shared.dataTask(with: request as URLRequest, completionHandler: { (data, response, error) in
                 if error != nil {
                     print(error)
-                    self.locationNameLabel.text = "Error: Weather could not be found. Please try again."
+                    DispatchQueue.main.sync(execute: {
+                        self.locationNameLabel.text = "Error: Weather could not be found. Please try again."
+                    })
                 } else {
-                    print(data)
+                    if let unwrappedData = data {
+                        let dataString = NSString(data: unwrappedData, encoding: String.Encoding.utf8.rawValue)
+                        print(dataString)
+                    }
                     print(response)
                 }
             })
@@ -59,6 +63,6 @@ class ViewController: UIViewController {
         }
         
     }
-
-
+    
+    
 }
