@@ -50,43 +50,48 @@ class ViewController: UIViewController {
                 var weatherSummary = ""
                 
                 if error != nil {
-                    print(error)
+                    print("****error:\(error!.localizedDescription)")
                     DispatchQueue.main.sync(execute: {
-                        self.locationNameLabel.text = "Error: Weather could not be found. Please try again."
+                        self.weatherSummaryLabel.text = "Error: Weather could not be found. Please try again."
+                    })
+                } else if (response as? HTTPURLResponse)?.statusCode  == 404 {
+                    print("********status Code is 404")
+                    DispatchQueue.main.sync(execute: {
+                        self.weatherSummaryLabel.text = "Error: Location could not be found. Please try again."
                     })
                 } else {
                     if let unwrappedData = data {
                         let dataString = NSString(data: unwrappedData, encoding: String.Encoding.utf8.rawValue)
                         
-                        //Weather Today </h2>(1&ndash;3 days)</span><p class="b-forecast__table-description-content"><span class="phrase">Moderate rain (total 15mm), heaviest on Sat night. Very mild (max 12&deg;C on Mon afternoon, min 1&deg;C on Sat morning). Winds decreasing (strong winds from the NW on Sat night, calm by Sun night).</span></p>
-                        //Weather Today </h2>(1&ndash;3 days)</span><p class="b-forecast__table-description-content"><span class="phrase">Moderate rain (total 15mm), heaviest on Sat night. Very mild (max 12&deg;C on Mon afternoon, min 1&deg;C on Sat morning). Winds decreasing (strong winds from the NW on Sat night, calm by Sun night).</span>
                         //Weather Today </h2>(1&ndash;3 days)</span><p class=\"b-forecast__table-description-content\"><span class=\"phrase\">Moderate rain (total 18mm), heaviest on Sat night. Very mild (max 16&deg;C on Tue morning, min 3&deg;C on Sat night). Winds decreasing (strong winds from the NW on Sat night, calm by Sun night).</span>
                         let bForecastString = "\"b-forecast__table-description-content\""
                         let phrase = "\"phrase\""
                         var stringSeparator = "Weather Today </h2>(1&ndash;3 days)</span><p class=\(bForecastString)><span class=\(phrase)>"
                         if let contentArray = dataString?.components(separatedBy: stringSeparator) {
                             //if bad url or source code changes and string separator isn't found so single item in contentArray.
-                            print("********this is contentArray:\(contentArray)")
                             if contentArray.count > 0 {
                                 stringSeparator = "</span>"
                                 let newContentArray = contentArray[1].components(separatedBy: stringSeparator)
                                 if newContentArray.count > 0 {
-                                    weatherSummary = newContentArray[0]
-                                   
-                                    DispatchQueue.main.sync(execute: {
-                                        
-                                        self.weatherSummaryLabel.textColor = .black
-                                        self.weatherSummaryLabel.text = weatherSummary
-                                        
-                                        print(weatherSummary)
-                                    })
+                                    weatherSummary = newContentArray[0].replacingOccurrences(of: "&deg;", with: "º")
                                 }
                             }
                             
                         }
                     }
                 }
+                //display weatherSummary for user if successful or not, check if weatherSUmmary is = to empty string (something will have gone wrong
+                if weatherSummary == "" {
+                    self.weatherSummaryLabel.text = "The weather couldn't be found. Please try again."
+                }
+                
+                DispatchQueue.main.sync(execute: {
+                    self.weatherSummaryLabel.text = weatherSummary
+                    
+                    print("**** edited weather summary:\(weatherSummary)")
+                })
             })
+           
             task.resume()
         }
         
