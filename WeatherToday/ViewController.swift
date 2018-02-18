@@ -94,7 +94,7 @@ class ViewController: UIViewController {
             
             task.resume()
         }
-        
+        cityTextField.text = ""
     }
     
     
