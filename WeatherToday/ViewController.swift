@@ -52,12 +52,13 @@ class ViewController: UIViewController {
                 if error != nil {
                     print("****error:\(error!.localizedDescription)")
                     DispatchQueue.main.sync(execute: {
-                        self.weatherSummaryLabel.text = "Error: Weather could not be found. Please try again."
+                        weatherSummary = "Error: Location or weather could not be found. Please try again."
+                        self.weatherSummaryLabel.text = weatherSummary
                     })
                 } else if (response as? HTTPURLResponse)?.statusCode  == 404 {
-                    print("********status Code is 404")
                     DispatchQueue.main.sync(execute: {
-                        self.weatherSummaryLabel.text = "Error: Location could not be found. Please try again."
+                        weatherSummary = "Error: Location could not be found. Please try again."
+                        self.weatherSummaryLabel.text = weatherSummary
                     })
                 } else {
                     if let unwrappedData = data {
@@ -69,29 +70,28 @@ class ViewController: UIViewController {
                         var stringSeparator = "Weather Today </h2>(1&ndash;3 days)</span><p class=\(bForecastString)><span class=\(phrase)>"
                         if let contentArray = dataString?.components(separatedBy: stringSeparator) {
                             //if bad url or source code changes and string separator isn't found so single item in contentArray.
-                            if contentArray.count > 0 {
+                            if contentArray.count > 1 {
                                 stringSeparator = "</span>"
                                 let newContentArray = contentArray[1].components(separatedBy: stringSeparator)
-                                if newContentArray.count > 0 {
+                                if newContentArray.count > 1 {
                                     weatherSummary = newContentArray[0].replacingOccurrences(of: "&deg;", with: "º")
+                                } else {
+                                    weatherSummary = "Error: Weather summary could not be found. Please try again."
+                                    
                                 }
+                                DispatchQueue.main.sync(execute: {
+                                    self.weatherSummaryLabel.backgroundColor = .white
+                                    self.weatherSummaryLabel.text = weatherSummary
+                                })
+                                
                             }
                             
                         }
                     }
                 }
-                //display weatherSummary for user if successful or not, check if weatherSUmmary is = to empty string (something will have gone wrong
-                if weatherSummary == "" {
-                    self.weatherSummaryLabel.text = "The weather couldn't be found. Please try again."
-                }
                 
-                DispatchQueue.main.sync(execute: {
-                    self.weatherSummaryLabel.text = weatherSummary
-                    
-                    print("**** edited weather summary:\(weatherSummary)")
-                })
             })
-           
+            
             task.resume()
         }
         
