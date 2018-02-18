@@ -27,6 +27,23 @@ class ViewController: UIViewController {
     }
     
     @IBAction func submitButtonTapped(_ sender: UIButton) {
+        if cityTextField.text?.isEmpty == true {
+            locationNameLabel.text = "Weather could not be found. Please try again."
+        } else {
+            if var cityText = cityTextField.text {
+                if cityText.contains(" ") {
+                    
+                    city = cityText.capitalized.replacingOccurrences(of: " ", with: "-")
+                    locationNameLabel.text = city.replacingOccurrences(of: "-", with: " ")
+                } else {
+                    city = cityText.capitalized
+                    locationNameLabel.text = city
+                }
+            }
+        }
+        
+        
     }
-    
+
+
 }
